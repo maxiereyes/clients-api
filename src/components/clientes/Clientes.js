@@ -1,22 +1,43 @@
-import React, { useEffect, useState, Fragment } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState, Fragment, useContext } from "react";
+import { Link, withRouter } from "react-router-dom";
 
 import clienteAxios from "../../config/axios";
 
+import { CRMContext } from "../../context/CRMContext";
+
 import Cliente from "./Cliente";
 
-const Clientes = () => {
+const Clientes = (props) => {
   const [clientes, guardarClientes] = useState([]);
 
+  const [auth, guardarAuth] = useContext(CRMContext);
+
   useEffect(() => {
-    const consultarApi = async () => {
-      const clientesConsulta = await clienteAxios.get("/clientes");
+    if (auth.token !== "") {
+      const consultarApi = async () => {
+        try {
+          const clientesConsulta = await clienteAxios.get("/clientes", {
+            headers: {
+              Authorization: `Bearer ${auth.token}`,
+            },
+          });
 
-      guardarClientes(clientesConsulta.data);
-    };
-
-    consultarApi();
+          guardarClientes(clientesConsulta.data);
+        } catch (error) {
+          if ((error.response.status = 500)) {
+            props.history.push("/iniciar-sesion");
+          }
+        }
+      };
+      consultarApi();
+    } else {
+      props.history.push("/iniciar-sesion");
+    }
   }, [clientes]);
+
+  if (!auth.auth) {
+    props.history.push("/iniciar-sesion");
+  }
 
   return (
     <Fragment>
@@ -36,4 +57,4 @@ const Clientes = () => {
   );
 };
 
-export default Clientes;
+export default withRouter(Clientes);
