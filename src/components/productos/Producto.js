@@ -31,7 +31,7 @@ const Producto = ({ producto }) => {
         {producto.imagen ? (
           <div style={{ width: "30%" }}>
             <img
-              src={`http://localhost:5000/${producto.imagen}`}
+              src={`${process.env.BACKEND_URL}/${producto.imagen}`}
               alt={producto.nombre}
               style={{ width: "100%" }}
             />
